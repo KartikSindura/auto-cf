@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ "$#" -eq 1 ]; then
+  # Format: scf <contest_id><problem_id>
+  contest_id="${1%[A-Z]}"  # Extract contest ID up to the last letter
+  problem_id="${1##*[0-9]}"  # Extract problem ID as the last character
+elif [ "$#" -eq 2 ]; then
+  # Format: scf <contest_id> <problem_id>
+  contest_id="$1"
+  problem_id="$2"
+else
+  echo "Usage: scf <problem_number><problem_id> or scf <problem_number> <problem_id>"
+  exit 1
+fi
+
+python3 ~/bin/get_codeforces_input.py "https://codeforces.com/contest/$contest_id/problem/$problem_id"
+

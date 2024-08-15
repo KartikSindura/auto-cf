@@ -1,0 +1,46 @@
+#!/bin/bash
+
+if [[ $1 != *.cpp ]]; then
+    echo "Please provide a .cpp file as an argument."
+    exit 1
+fi
+
+# Compile the C++ program
+g++ "$1" --std=c++20
+if [[ $? -ne 0 ]]; then
+    echo "Compilation failed."
+    exit 1
+fi
+
+# Check for manual input flag
+manual_input=false
+if [[ "$2" == "-m" ]]; then
+    manual_input=true
+fi
+
+if $manual_input; then
+    echo "Enter your input manually (press Ctrl+D when finished):"
+    cat > temp_manual_input.txt
+    input_file="temp_manual_input.txt"
+else
+    # Use scraped input if no manual input flag
+    echo -n "Enter the input number you want to use (e.g., 1, 2, ...): "
+    read -r input_choice
+    # sed -n "/input$input_choice/,/output$input_choice/p" input.txt | sed '1d;$d' > temp.txt
+    sed -n "/input$input_choice/,/input$((input_choice+1))/p" input.txt | sed '1d;$d' > temp.txt
+
+    if [[ ! -s temp.txt ]]; then
+        echo "No valid input found for the selected choice."
+        rm -f temp.txt
+        exit 1
+    fi
+
+    input_file="temp.txt"
+fi
+
+# Run the compiled program with the selected or manual input
+./"a.out" < "$input_file"
+
+# Clean up temporary files
+rm -f temp.txt temp_manual_input.txt
+
